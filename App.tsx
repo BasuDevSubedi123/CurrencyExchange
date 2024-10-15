@@ -1,118 +1,133 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+
+import React, { useState } from 'react';
 import {
+  FlatList,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   useColorScheme,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+//cpmstant 
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+import { currencybyRupee } from './src/Constant';
+import {CurrencyButton} from './src/Component/CurrencyButton'
+// component 
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import Snackbar from 'react-native-snackbar';
+
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [inputValue , setInputValue ] = useState('')
+  const [resultValue , setresultValue] = useState('')
+  const [TargetCurrency , setTargetCurrency ] = useState('')
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+const  buttonpress = (targerValue : Currency) => {
+    if (!inputValue){
+      return Snackbar.show({
+        text:"Enter vale to convert", 
+        backgroundColor: "#EA7773", 
+        textColor : "#000000"
+      })
+
+    }
+
+    const InputAmount = parseFloat(inputValue)
+    if (!isNaN(InputAmount)){
+      const convertedValue = InputAmount / targerValue.value
+      const result = `${targerValue.symbol} ${convertedValue.toFixed(2)}`
+      setresultValue(result);
+      setTargetCurrency(targerValue.name)
+    }else{
+      return Snackbar.show({
+        text:"Not a valied numbet to convet ", 
+        backgroundColor: "#F43287", 
+        textColor : "#000000"
+      })
+    }           
+}
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView >
+      <StatusBar/>
+
+       <View>
+       <View>
+        <View style = {styles.inputfield}>
+            <Text style = {styles.inputsymbol}>	रु. </Text>
+            <TextInput
+            style = {styles.inputNumber}
+            maxLength={14}
+            value={inputValue}
+            clearButtonMode='always'
+            onChangeText={setInputValue}
+            keyboardType='number-pad'
+            placeholder='Enter anound in  Rupees '
+            />
+          </View>
+        {resultValue && (
+          <Text style={styles.result}> {resultValue}</Text>
+        )}
+
+
+       </View>
+       <View>
+        <FlatList
+        numColumns={3}
+        data={currencybyRupee}
+        keyExtractor={item => item.name}
+        renderItem={({item}) =>(
+          <Pressable
+          onPress={() => buttonpress(item)}
+          style = {
+            TargetCurrency === item.name && styles.Selected
+          }
+          >
+            <CurrencyButton  {...item}/>
+          </Pressable>
+        )}
+        />
+       </View>
+       </View>
     </SafeAreaView>
+
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  inputfield : {
+    display: 'flex',
+    flexDirection :'row',
+    // alignItems:'center',
+    // backgroundColor : "#234567",
+    paddingLeft: 40,
+    paddingTop: 50,
+    paddingBottom:30,
+    
+  }, 
+  inputsymbol: {
+    fontSize: 40 
+  }, 
+  inputNumber: {
+    fontSize: 25 
+  }, 
+  result: {
+    // backgroundColor: '#475909',
+    height : 40,
+    fontSize : 30, 
+    paddingLeft : 30, 
+    marginBottom: 40 
+  }, 
+  Selected: {
+    backgroundColor: '#00ff00'
+  }
+
 });
 
 export default App;
